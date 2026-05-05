@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DallAudit</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1C1712">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DallAudit">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F0E9DC; --bg2:#E6DDD0; --surf:#FAF6F1; --ink:#1C1712;
+  --ink2:#4A3F35; --ink3:#8A7B6A; --acc:#C94E1A; --acc2:#A03A10;
+  --grn:#2D7A4F; --grn2:#EBF5EF; --warn:#B08020; --warn2:#FFF8E6;
+  --brd:#C8B49A; --brd2:#DDD0BE; --sand:#B09060;
+  --fd:'Bricolage Grotesque',system-ui,sans-serif;
+  --fb:'DM Sans',system-ui,sans-serif;
+  --fm:'DM Mono','Courier New',monospace;
+  --sh1:0 1px 3px rgba(28,23,18,.10),0 1px 2px rgba(28,23,18,.06);
+  --sh2:0 4px 12px rgba(28,23,18,.12),0 2px 4px rgba(28,23,18,.06);
+  --sh3:0 12px 32px rgba(28,23,18,.14),0 4px 8px rgba(28,23,18,.08);
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body,#app{height:100%;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+h1,h2,h3{font-family:var(--fd);font-weight:800;line-height:1.2;margin:0;color:var(--ink)}
+h1{font-size:clamp(1.5rem,5vw,2rem)}
+h2{font-size:1.25rem} h3{font-size:1rem}
+p{margin:0 0 .75rem} button{font-family:var(--fb);cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:var(--fb);font-size:15px;color:var(--ink);outline:none}
+::-webkit-scrollbar{width:5px;height:5px} ::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+
+/* Layout */
+.screen{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px;padding-bottom:calc(80px + env(safe-area-inset-bottom) + 20px)}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));background:var(--ink);color:#fff;gap:12px;min-height:56px;flex-shrink:0}
+.topbar-title{flex:1;font-family:var(--fd);font-weight:800;font-size:17px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar-back{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;border:none;flex-shrink:0;font-size:18px;transition:background .15s}
+.topbar-back:hover{background:rgba(255,255,255,.22)}
+.topbar-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:12px;font-weight:600;border:none;cursor:pointer;white-space:nowrap;font-family:var(--fb)}
+.topbar-btn:hover{background:rgba(255,255,255,.22)}
+
+/* Bottom nav */
+.nav{display:flex;background:var(--surf);border-top:1px solid var(--brd2);padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;gap:3px;color:var(--ink3);font-size:10px;font-weight:600;font-family:var(--fm);text-transform:uppercase;letter-spacing:.04em;background:none;border:none;cursor:pointer;transition:color .15s}
+.nav-item svg{width:22px;height:22px} .nav-item.active{color:var(--acc)}
+
+/* Cards */
+.card{background:var(--surf);border:1px solid var(--brd2);border-radius:16px;padding:18px;box-shadow:var(--sh1)}
+.card+.card{margin-top:10px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;font-family:var(--fb);transition:all .15s;white-space:nowrap;border:none;cursor:pointer}
+.btn-prim{background:var(--ink);color:#fff} .btn-prim:hover{background:var(--ink2)} .btn-prim:active{transform:scale(.97)}
+.btn-acc{background:var(--acc);color:#fff} .btn-acc:hover{background:var(--acc2)} .btn-acc:active{transform:scale(.97)}
+.btn-ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--brd)}
+.btn-ghost:hover{background:var(--bg2);border-color:var(--sand)}
+.btn-danger{background:#FFF0ED;color:var(--acc);border:1.5px solid #FACEBC} .btn-danger:hover{background:#FCEAE4}
+.btn-lg{padding:14px 28px;font-size:16px;border-radius:14px} .btn-sm{padding:6px 13px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));right:20px;width:56px;height:56px;border-radius:50%;background:var(--acc);color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh3);z-index:100;border:none;cursor:pointer;transition:transform .15s,background .15s}
+.fab:hover{background:var(--acc2);transform:scale(1.06)} .fab:active{transform:scale(.94)}
+
+/* Fields */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.field label{font-size:11px;font-weight:600;font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)}
+.field input,.field select,.field textarea{background:var(--surf);border:1.5px solid var(--brd2);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--ink);transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink)}
+.field textarea{resize:vertical;min-height:88px}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A7B6A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;font-family:var(--fm);text-transform:uppercase;letter-spacing:.04em}
+.b-crit{background:#FCEAE4;color:var(--acc)} .b-norm{background:var(--grn2);color:var(--grn)}
+.b-draft{background:var(--bg2);color:var(--ink3)} .b-prog{background:#EEF4FF;color:#2B5CB5} .b-done{background:var(--grn2);color:var(--grn)}
+
+/* Photos */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.photo-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--bg2);position:relative;cursor:pointer}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-add{aspect-ratio:1;border-radius:10px;border:2px dashed var(--brd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink3);font-size:11px;font-weight:600;cursor:pointer;background:transparent;transition:all .15s}
+.photo-add:hover{border-color:var(--acc);color:var(--acc);background:#FDF0EB}
+
+/* Empty state */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;gap:12px;color:var(--ink3)}
+.empty svg{opacity:.3;width:52px;height:52px} .empty p{margin:0;font-size:13px;max-width:220px}
+
+/* Spinner */
+.spin{width:22px;height:22px;border:2.5px solid var(--brd2);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toasts */
+.toasts{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom) + 8px);left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:10px 18px;border-radius:14px;font-size:13px;font-weight:500;box-shadow:var(--sh3);white-space:nowrap;animation:tin .25s ease}
+.toast-ok{background:var(--grn)} .toast-err{background:var(--acc)} .toast-warn{background:var(--warn)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Tabs */
+.tabs{display:flex;background:var(--ink);padding:0 16px 10px;gap:7px}
+.tab{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;font-family:var(--fm);text-transform:uppercase;letter-spacing:.04em;background:rgba(255,255,255,.1);color:#fff;border:none;cursor:pointer;transition:background .15s}
+.tab.on{background:var(--acc)}
+
+/* Patho pill */
+.patho{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:100px;font-size:11px;font-weight:600;font-family:var(--fm);background:var(--bg2);color:var(--ink);border:1px solid var(--brd2)}
+
+/* Misc */
+.divider{border:none;border-top:1px solid var(--brd2);margin:0}
+.mono{font-family:var(--fm)}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--surf);border:1px solid var(--brd2);border-radius:14px;padding:12px 8px;text-align:center}
+.kpi-val{font-family:var(--fd);font-weight:800;font-size:24px;line-height:1}
+.kpi-lbl{font-size:9px;font-family:var(--fm);color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+
+/* Modal fullscreen photo */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.overlay img{max-width:100%;max-height:100%;object-fit:contain}
+
+/* Sev radio */
+.sev-opts{display:flex;gap:10px}
+.sev-opt{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:10px;border:2px solid var(--brd2);cursor:pointer;font-size:14px;font-weight:600;transition:all .15s}
+.sev-opt.on-norm{border-color:var(--grn);background:var(--grn2);color:var(--grn)}
+.sev-opt.on-crit{border-color:var(--acc);background:#FDF0EB;color:var(--acc)}
+
+/* Progress bar */
+.bar-bg{height:7px;background:var(--bg2);border-radius:4px}
+.bar-fg{height:100%;background:var(--acc);border-radius:4px;transition:width .3s}
+
+/* Anim */
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:fadein .22s ease}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toasts" id="toasts"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+'use strict';
+
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const PATHOS = [
+  {code:'FIS',label:'Fissure'},
+  {code:'ECL',label:'Éclat / Épaufrure'},
+  {code:'AFF',label:'Affaissement'},
+  {code:'DEC',label:'Décollement'},
+  {code:'TAS',label:'Tassement différentiel'},
+  {code:'USU',label:'Usure prématurée'},
+  {code:'HUM',label:'Humidité / Remontée'},
+  {code:'FER',label:'Ferraillage apparent'},
+  {code:'JOI',label:'Joint dégradé'},
+  {code:'DAL',label:'Dalle cassée'},
+  {code:'AUT',label:'Autre'},
+];
+const PATHO_MAP = Object.fromEntries(PATHOS.map(p=>[p.code,p.label]));
+const STATUS_LABEL = {draft:'Brouillon',in_progress:'En cours',completed:'Terminé'};
+const STATUS_CLS   = {draft:'b-draft',in_progress:'b-prog',completed:'b-done'};
+const VERSION = 'v3.0';
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+const uuid = () => crypto.randomUUID ? crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+const fmtDate = ts => new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+const fmtDateTime = ts => new Date(ts).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg, type='', dur=3000) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ` toast-${type}` : '');
+  el.textContent = msg;
+  const c = document.getElementById('toasts');
+  c.appendChild(el);
+  setTimeout(() => el.remove(), dur);
+}
+
+/* ============================================================
+   INDEXEDDB
+   ============================================================ */
+class DB {
+  constructor() { this.db = null; }
+
+  open() {
+    return new Promise((res, rej) => {
+      const req = indexedDB.open('dallaudit_pwa', 2);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('audits'))
+          db.createObjectStore('audits', {keyPath:'id'});
+        if (!db.objectStoreNames.contains('observations')) {
+          const s = db.createObjectStore('observations', {keyPath:'id'});
+          s.createIndex('auditId','auditId',{unique:false});
+        }
+        if (!db.objectStoreNames.contains('photos')) {
+          const s = db.createObjectStore('photos', {keyPath:'id'});
+          s.createIndex('obsId','obsId',{unique:false});
+        }
+      };
+      req.onsuccess = e => { this.db = e.target.result; res(); };
+      req.onerror  = e => rej(e.target.error);
+    });
+  }
+
+  _tx(stores, mode='readonly') {
+    return this.db.transaction(stores, mode);
+  }
+
+  getAll(store) {
+    return new Promise((res, rej) => {
+      const req = this._tx(store).objectStore(store).getAll();
+      req.onsuccess = e => res(e.target.result);
+      req.onerror   = e => rej(e.target.error);
+    });
+  }
+
+  get(store, id) {
+    return new Promise((res, rej) => {
+      const req = this._tx(store).objectStore(store).get(id);
+      req.onsuccess = e => res(e.target.result);
+      req.onerror   = e => rej(e.target.error);
+    });
+  }
+
+  put(store, item) {
+    return new Promise((res, rej) => {
+      const req = this._tx(store,'readwrite').objectStore(store).put(item);
+      req.onsuccess = e => res(e.target.result);
+      req.onerror   = e => rej(e.target.error);
+    });
+  }
+
+  delete(store, id) {
+    return new Promise((res, rej) => {
+      const req = this._tx(store,'readwrite').objectStore(store).delete(id);
+      req.onsuccess = e => res();
+      req.onerror   = e => rej(e.target.error);
+    });
+  }
+
+  getByIndex(store, index, value) {
+    return new Promise((res, rej) => {
+      const req = this._tx(store).objectStore(store).index(index).getAll(value);
+      req.onsuccess = e => res(e.target.result);
+      req.onerror   = e => rej(e.target.error);
+    });
+  }
+}
+const db = new DB();
+
+/* ============================================================
+   PHOTO COMPRESSION
+   ============================================================ */
+function compressPhoto(file, maxDim=1600, quality=0.80) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const ratio = Math.min(maxDim/img.naturalWidth, maxDim/img.naturalHeight, 1);
+      const w = Math.round(img.naturalWidth * ratio);
+      const h = Math.round(img.naturalHeight * ratio);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        if (!blob) { rej(new Error('Compression échouée')); return; }
+        const reader = new FileReader();
+        reader.onload = () => res({ dataUrl: reader.result, bytes: blob.size, w, h });
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Image illisible')); };
+    img.src = url;
+  });
+}
+
+function makeThumb(dataUrl, size=200) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      const ratio = Math.min(size/img.width, size/img.height, 1);
+      const w = Math.round(img.width * ratio);
+      const h = Math.round(img.height * ratio);
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', 0.72));
+    };
+    img.src = dataUrl;
+  });
+}
+
+/* ============================================================
+   ROUTER (hash-based)
+   ============================================================ */
+const Router = {
+  go(hash) { location.hash = hash; },
+  back() { history.back(); },
+  current() { return location.hash.slice(1) || 'dashboard'; },
+};
+
+let _currentTab = {audit:'list', report:0};
+function getTab(key) { return _currentTab[key]; }
+function setTab(key, val) { _currentTab[key] = val; }
+
+/* ============================================================
+   RENDER DISPATCHER
+   ============================================================ */
+async function render() {
+  const hash = Router.current();
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+
+  if (hash === 'dashboard') await renderDashboard(app);
+  else if (hash.startsWith('audit/')) await renderAudit(app, hash.split('/')[1]);
+  else if (hash.startsWith('obs/')) {
+    const [,auditId,obsId] = hash.split('/');
+    // x,y coords may be in hash as obs/auditId/new?x=0.3&y=0.4
+    const [cleanObsId, qs=''] = obsId.split('?');
+    const params = Object.fromEntries(new URLSearchParams(qs));
+    await renderObsForm(app, auditId, cleanObsId, params);
+  }
+  else if (hash === 'settings') renderSettings(app);
+  else await renderDashboard(app);
+}
+
+window.addEventListener('hashchange', render);
+
+/* ============================================================
+   ICONS (inline SVG)
+   ============================================================ */
+const ICO = {
+  list: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4" stroke-linecap="round"/></svg>`,
+  sync: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke-linecap="round"/></svg>`,
+  info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>`,
+  cam:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  pdf:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`,
+  trash:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
+};
+
+/* ============================================================
+   PAGE : DASHBOARD
+   ============================================================ */
+async function renderDashboard(app) {
+  const audits = (await db.getAll('audits')).sort((a,b) => b.updatedAt - a.updatedAt);
+  const allObs = await db.getAll('observations');
+  const totalObs = allObs.length;
+  const totalCrit = allObs.filter(o => o.sev === 'critical').length;
+
+  app.innerHTML = `
+<div class="screen">
+  <div class="topbar">
+    <span class="topbar-title">DallAudit ${VERSION}</span>
+    <span class="mono" style="font-size:11px;opacity:.6;color:#fff">${audits.length} audit${audits.length>1?'s':''}</span>
+  </div>
+  <div class="body" id="body">
+    <div class="kpi-grid" style="margin-bottom:18px">
+      <div class="kpi"><div class="kpi-val">${audits.length}</div><div class="kpi-lbl">Audits</div></div>
+      <div class="kpi"><div class="kpi-val">${totalObs}</div><div class="kpi-lbl">Observations</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:${totalCrit>0?'var(--acc)':'var(--ink)'}">${totalCrit}</div><div class="kpi-lbl">Critiques</div></div>
+    </div>
+
+    <div id="new-audit-area"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span class="mono" style="font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;font-weight:600">Mes audits</span>
+    </div>
+
+    ${audits.length === 0 ? `
+      <div class="empty">
+        ${ICO.list}
+        <p>Aucun audit. Appuyez sur + pour commencer.</p>
+      </div>
+    ` : audits.map(a => {
+      const obs = allObs.filter(o => o.auditId === a.id);
+      const crit = obs.filter(o => o.sev === 'critical').length;
+      return `
+        <div class="card fadein" style="cursor:pointer;margin-bottom:10px" onclick="Router.go('audit/${a.id}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px">
+            <h3 style="font-size:16px;flex:1;line-height:1.3">${esc(a.title)}</h3>
+            <span class="badge ${STATUS_CLS[a.status]||'b-draft'}">${STATUS_LABEL[a.status]||a.status}</span>
+          </div>
+          ${a.siteName ? `<p style="font-size:12px;color:var(--ink3);margin:0 0 8px">📍 ${esc(a.siteName)}</p>` : ''}
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="mono" style="font-size:12px;color:var(--ink3)">${obs.length} obs.</span>
+            ${crit > 0 ? `<span class="badge b-crit">${crit} critique${crit>1?'s':''}</span>` : ''}
+            <span style="font-size:11px;color:var(--ink3);margin-left:auto">${fmtDate(a.updatedAt)}</span>
+          </div>
+        </div>`;
+    }).join('')}
+  </div>
+
+  <nav class="nav">
+    <button class="nav-item active" onclick="Router.go('dashboard')">${ICO.list}<span>Audits</span></button>
+    <button class="nav-item" onclick="Router.go('settings')">${ICO.info}<span>À propos</span></button>
+  </nav>
+</div>
+<button class="fab" onclick="showNewAuditForm()" title="Nouvel audit">+</button>`;
+}
+
+window.showNewAuditForm = function() {
+  const area = document.getElementById('new-audit-area');
+  if (!area) return;
+  area.innerHTML = `
+    <div class="card fadein" style="margin-bottom:16px">
+      <h3 style="margin-bottom:14px">Nouvel audit</h3>
+      <div class="field"><label>Titre *</label><input id="na-title" type="text" placeholder="ex: Audit Zone A — Bâtiment 2" autofocus></div>
+      <div class="field"><label>Site / Lieu</label><input id="na-site" type="text" placeholder="ex: Entrepôt Lyon-Nord"></div>
+      <div class="field"><label>Description</label><input id="na-desc" type="text" placeholder="Optionnel"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-acc" onclick="createAudit()">Créer</button>
+        <button class="btn btn-ghost btn-sm" onclick="this.closest('.card').remove()">Annuler</button>
+      </div>
+    </div>`;
+  document.getElementById('na-title')?.focus();
+};
+
+window.createAudit = async function() {
+  const title = document.getElementById('na-title')?.value.trim();
+  const siteName = document.getElementById('na-site')?.value.trim();
+  const description = document.getElementById('na-desc')?.value.trim();
+  if (!title) { toast('Titre requis','err'); return; }
+  const now = Date.now();
+  const audit = { id:uuid(), title, siteName, description, status:'draft', createdAt:now, updatedAt:now };
+  await db.put('audits', audit);
+  toast('Audit créé ✓','ok');
+  Router.go(`audit/${audit.id}`);
+};
+
+/* ============================================================
+   PAGE : AUDIT DETAIL
+   ============================================================ */
+async function renderAudit(app, auditId) {
+  const audit = await db.get('audits', auditId);
+  if (!audit) { Router.go('dashboard'); return; }
+  const obs = (await db.getByIndex('observations','auditId',auditId)).sort((a,b) => a.ref.localeCompare(b.ref));
+  const crit = obs.filter(o => o.sev === 'critical').length;
+
+  const tab = getTab('audit') || 'list';
+
+  app.innerHTML = `
+<div class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="Router.go('dashboard')">${ICO.back}</button>
+    <span class="topbar-title">${esc(audit.title)}</span>
+    <button class="topbar-btn" id="pdf-btn" onclick="downloadPDF('${auditId}')">${ICO.pdf} PDF</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab ${tab==='list'?'on':''}" onclick="switchAuditTab('list','${auditId}')">Liste (${obs.length})</button>
+    <button class="tab ${tab==='stats'?'on':''}" onclick="switchAuditTab('stats','${auditId}')">Rapport</button>
+    <button class="tab ${tab==='edit'?'on':''}" onclick="switchAuditTab('edit','${auditId}')">Infos</button>
+  </div>
+
+  <div class="body" id="audit-body">
+    <div class="kpi-grid" style="margin-bottom:16px">
+      <div class="kpi"><div class="kpi-val">${obs.length}</div><div class="kpi-lbl">Total</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:${crit>0?'var(--acc)':'var(--ink)'}">${crit}</div><div class="kpi-lbl">Critiques</div></div>
+      <div class="kpi"><div class="kpi-val">${obs.filter(o=>o.qty>0).reduce((s,o)=>s+o.qty,0).toFixed(1)}</div><div class="kpi-lbl">m²</div></div>
+    </div>
+    <div id="tab-content"></div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-item" onclick="Router.go('dashboard')">${ICO.list}<span>Audits</span></button>
+    <button class="nav-item active">${ICO.sync}<span>Audit</span></button>
+    <button class="nav-item" onclick="Router.go('settings')">${ICO.info}<span>À propos</span></button>
+  </nav>
+</div>
+<button class="fab" onclick="Router.go('obs/${auditId}/new')" title="Nouvelle observation">+</button>`;
+
+  renderAuditTab(tab, obs, audit, auditId);
+}
+
+window.switchAuditTab = function(tab, auditId) {
+  setTab('audit', tab);
+  Router.go(`audit/${auditId}`);
+};
+
+function renderAuditTab(tab, obs, audit, auditId) {
+  const el = document.getElementById('tab-content');
+  if (!el) return;
+
+  if (tab === 'list') {
+    el.innerHTML = obs.length === 0 ? `
+      <div class="empty">${ICO.list}<p>Aucune observation. Appuyez sur + pour en ajouter.</p></div>
+    ` : obs.map(o => `
+      <div class="card fadein" style="cursor:pointer;padding:14px 16px;margin-bottom:8px" onclick="Router.go('obs/${auditId}/${o.id}')">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">
+          <div style="width:10px;height:10px;border-radius:50%;flex-shrink:0;background:${o.sev==='critical'?'var(--acc)':'var(--grn)'}"></div>
+          <span class="mono" style="font-weight:700;font-size:14px">${esc(o.ref)}</span>
+          <span class="patho">${esc(o.patho)} — ${esc(PATHO_MAP[o.patho]||o.patho)}</span>
+        </div>
+        ${o.desc ? `<p style="font-size:13px;color:var(--ink2);margin:0 0 6px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${esc(o.desc)}</p>` : ''}
+        <div style="display:flex;gap:10px">
+          ${o.qty > 0 ? `<span class="mono" style="font-size:11px;color:var(--ink3)">${o.qty} m²</span>` : ''}
+          ${o.photoIds?.length > 0 ? `<span style="font-size:11px;color:var(--ink3)">📷 ${o.photoIds.length}</span>` : ''}
+          <span style="font-size:11px;color:var(--ink3);margin-left:auto">${fmtDate(o.updatedAt)}</span>
+        </div>
+      </div>
+    `).join('');
+
+  } else if (tab === 'stats') {
+    const pathoStats = {};
+    for (const o of obs) pathoStats[o.patho] = (pathoStats[o.patho]||0) + 1;
+    const sorted = Object.entries(pathoStats).sort(([,a],[,b])=>b-a);
+    const total = obs.length || 1;
+
+    el.innerHTML = `
+      <div class="card" style="margin-bottom:12px">
+        <h3 style="font-size:12px;font-family:var(--fm);text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:14px;letter-spacing:.05em">Répartition par pathologie</h3>
+        ${sorted.length === 0 ? '<p style="color:var(--ink3);font-size:13px">Aucune observation.</p>' : sorted.map(([code,count]) => `
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span class="mono">${code} — ${esc(PATHO_MAP[code]||code)}</span>
+              <span style="color:var(--ink3)">${count} (${Math.round(count/total*100)}%)</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fg" style="width:${Math.round(count/total*100)}%"></div></div>
+          </div>`).join('')}
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:12px;font-family:var(--fm);text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:12px;letter-spacing:.05em">Par sévérité</h3>
+        ${[['Critiques',obs.filter(o=>o.sev==='critical').length,'var(--acc)'],['Normales',obs.filter(o=>o.sev==='normal').length,'var(--grn)']].map(([lbl,cnt,color]) => `
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+            <span style="flex:1;font-size:13px">${lbl}</span>
+            <span class="mono" style="font-size:13px;font-weight:600">${cnt}</span>
+          </div>`).join('')}
+      </div>
+
+      <button class="btn btn-acc btn-lg" style="width:100%;margin-top:14px" onclick="downloadPDF('${audit.id}')">
+        ${ICO.pdf} Télécharger le rapport PDF
+      </button>`;
+
+  } else if (tab === 'edit') {
+    el.innerHTML = `
+      <div class="card fadein">
+        <h3 style="margin-bottom:16px">Informations</h3>
+        <div class="field"><label>Titre *</label><input id="e-title" type="text" value="${esc(audit.title)}"></div>
+        <div class="field"><label>Site / Lieu</label><input id="e-site" type="text" value="${esc(audit.siteName||'')}"></div>
+        <div class="field"><label>Description</label><textarea id="e-desc">${esc(audit.description||'')}</textarea></div>
+        <div class="field"><label>Statut</label>
+          <select id="e-status">
+            ${['draft','in_progress','completed'].map(s=>`<option value="${s}" ${audit.status===s?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-acc" onclick="saveAudit('${audit.id}')">Enregistrer</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDeleteAudit('${audit.id}')">Supprimer</button>
+        </div>
+      </div>`;
+  }
+}
+
+window.saveAudit = async function(auditId) {
+  const audit = await db.get('audits', auditId);
+  if (!audit) return;
+  const title = document.getElementById('e-title')?.value.trim();
+  if (!title) { toast('Titre requis','err'); return; }
+  Object.assign(audit, {
+    title,
+    siteName: document.getElementById('e-site')?.value.trim(),
+    description: document.getElementById('e-desc')?.value.trim(),
+    status: document.getElementById('e-status')?.value,
+    updatedAt: Date.now(),
+  });
+  await db.put('audits', audit);
+  toast('Enregistré ✓','ok');
+  Router.go(`audit/${auditId}`);
+};
+
+window.confirmDeleteAudit = async function(auditId) {
+  if (!confirm('Supprimer cet audit et toutes ses observations ?')) return;
+  const obs = await db.getByIndex('observations','auditId',auditId);
+  for (const o of obs) {
+    for (const pid of (o.photoIds||[])) await db.delete('photos', pid);
+    await db.delete('observations', o.id);
+  }
+  await db.delete('audits', auditId);
+  toast('Audit supprimé','warn');
+  Router.go('dashboard');
+};
+
+/* ============================================================
+   PAGE : OBSERVATION FORM
+   ============================================================ */
+async function renderObsForm(app, auditId, obsId, params={}) {
+  const isNew = obsId === 'new';
+  const audit = await db.get('audits', auditId);
+  const obs = isNew ? null : await db.get('observations', obsId);
+  const photos = obs ? await db.getByIndex('photos','obsId',obs.id) : [];
+
+  // Auto-ref for new obs
+  let autoRef = 'OBS-001';
+  if (isNew) {
+    const existing = await db.getByIndex('observations','auditId',auditId);
+    autoRef = `OBS-${String(existing.length + 1).padStart(3,'0')}`;
+  }
+
+  const f = obs || { ref: autoRef, patho:'FIS', sev:'normal', desc:'', qty:'', x:params.x, y:params.y };
+
+  app.innerHTML = `
+<div class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="history.back()">${ICO.back}</button>
+    <span class="topbar-title">${isNew ? 'Nouvelle observation' : `Modifier ${esc(f.ref)}`}</span>
+    ${!isNew ? `<button class="topbar-btn" onclick="confirmDeleteObs('${obs.id}','${auditId}')" style="color:#ff9985">${ICO.trash}</button>` : ''}
+  </div>
+
+  <div class="body">
+    <div class="field">
+      <label>Référence *</label>
+      <input id="f-ref" type="text" value="${esc(f.ref)}" style="font-family:var(--fm);font-weight:700;text-transform:uppercase"
+        oninput="this.value=this.value.toUpperCase()">
+    </div>
+
+    <div class="field"><label>Sévérité</label>
+      <div class="sev-opts" id="sev-opts">
+        <div class="sev-opt ${f.sev==='normal'?'on-norm':''}" data-sev="normal" onclick="selectSev('normal')">🟢 Normal</div>
+        <div class="sev-opt ${f.sev==='critical'?'on-crit':''}" data-sev="critical" onclick="selectSev('critical')">🔴 Critique</div>
+      </div>
+      <input type="hidden" id="f-sev" value="${f.sev}">
+    </div>
+
+    <div class="field"><label>Pathologie *</label>
+      <select id="f-patho">
+        ${PATHOS.map(p=>`<option value="${p.code}" ${f.patho===p.code?'selected':''}>${p.code} — ${p.label}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field"><label>Description</label>
+      <textarea id="f-desc" placeholder="Décrivez l'anomalie, son contexte, son étendue…">${esc(f.desc||'')}</textarea>
+    </div>
+
+    <div class="field"><label>Quantité (m²)</label>
+      <input id="f-qty" type="number" min="0" step="0.1" value="${f.qty||''}" placeholder="0.00">
+    </div>
+
+    ${f.x !== undefined ? `
+      <div style="background:var(--bg2);border-radius:10px;padding:8px 12px;font-size:12px;font-family:var(--fm);color:var(--ink3);margin-bottom:16px">
+        📍 Position plan : X=${Number(f.x).toFixed(3)} Y=${Number(f.y).toFixed(3)}
+      </div>` : ''}
+
+    ${!isNew ? `
+      <div style="margin-bottom:22px">
+        <div style="font-size:11px;font-family:var(--fm);color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:10px">
+          Photos (${photos.length})
+        </div>
+        <div class="photo-grid" id="photo-grid">
+          ${photos.map(p => `
+            <div class="photo-thumb" onclick="viewPhoto('${p.id}')">
+              <img src="${p.thumbUrl||p.dataUrl}" loading="lazy">
+              <button onclick="event.stopPropagation();deletePhoto('${p.id}','${obs.id}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+            </div>`).join('')}
+          <label class="photo-add" id="photo-add-btn">
+            ${ICO.cam}
+            <span>Photo</span>
+            <input type="file" accept="image/*" capture="environment" style="display:none" onchange="addPhoto(event,'${obs?.id}')">
+          </label>
+        </div>
+        <div id="photo-loading" style="display:none;margin-top:8px;color:var(--ink3);font-size:13px;display:flex;align-items:center;gap:8px">
+          <span class="spin"></span> Compression en cours…
+        </div>
+      </div>` : `
+      <div style="background:var(--warn2);border:1px solid #E8D090;border-radius:10px;padding:10px 14px;font-size:13px;color:var(--warn);margin-bottom:16px">
+        💡 Enregistrez d'abord pour ajouter des photos.
+      </div>`}
+
+    <button class="btn btn-acc btn-lg" style="width:100%;margin-bottom:12px" onclick="saveObs('${auditId}','${obsId}')">
+      ${isNew ? 'Créer l\'observation' : 'Enregistrer'}
+    </button>
+    <button class="btn btn-ghost" style="width:100%" onclick="history.back()">Annuler</button>
+  </div>
+</div>`;
+}
+
+window.selectSev = function(sev) {
+  document.getElementById('f-sev').value = sev;
+  document.querySelectorAll('.sev-opt').forEach(el => {
+    el.className = 'sev-opt';
+    if (el.dataset.sev === sev) el.className = 'sev-opt ' + (sev==='critical' ? 'on-crit' : 'on-norm');
+  });
+};
+
+window.saveObs = async function(auditId, obsId) {
+  const isNew = obsId === 'new';
+  const ref = document.getElementById('f-ref')?.value.trim().toUpperCase();
+  if (!ref) { toast('Référence requise','err'); return; }
+
+  const now = Date.now();
+  const data = {
+    id: isNew ? uuid() : obsId,
+    auditId,
+    ref,
+    sev: document.getElementById('f-sev')?.value || 'normal',
+    patho: document.getElementById('f-patho')?.value || 'FIS',
+    desc: document.getElementById('f-desc')?.value.trim() || '',
+    qty: Number(document.getElementById('f-qty')?.value) || 0,
+    photoIds: isNew ? [] : (await db.get('observations', obsId))?.photoIds || [],
+    createdAt: isNew ? now : (await db.get('observations', obsId))?.createdAt || now,
+    updatedAt: now,
+  };
+
+  await db.put('observations', data);
+
+  // Update audit updatedAt
+  const audit = await db.get('audits', auditId);
+  if (audit) { audit.updatedAt = now; await db.put('audits', audit); }
+
+  toast(isNew ? 'Observation créée ✓' : 'Enregistré ✓', 'ok');
+  setTab('audit','list');
+  Router.go(`audit/${auditId}`);
+};
+
+window.confirmDeleteObs = async function(obsId, auditId) {
+  if (!confirm('Supprimer cette observation ?')) return;
+  const obs = await db.get('observations', obsId);
+  if (obs) for (const pid of (obs.photoIds||[])) await db.delete('photos', pid);
+  await db.delete('observations', obsId);
+  toast('Observation supprimée','warn');
+  setTab('audit','list');
+  Router.go(`audit/${auditId}`);
+};
+
+window.addPhoto = async function(evt, obsId) {
+  const file = evt.target.files?.[0];
+  if (!file || !obsId) return;
+
+  const loadingEl = document.getElementById('photo-loading');
+  const addBtn = document.getElementById('photo-add-btn');
+  if (loadingEl) loadingEl.style.display = 'flex';
+  if (addBtn) addBtn.style.opacity = '0.5';
+
+  try {
+    const { dataUrl, bytes, w, h } = await compressPhoto(file);
+    const thumbUrl = await makeThumb(dataUrl);
+    const photo = {
+      id: uuid(), obsId, dataUrl, thumbUrl,
+      bytes, origBytes: file.size, w, h, createdAt: Date.now(),
+    };
+    await db.put('photos', photo);
+
+    const obs = await db.get('observations', obsId);
+    if (obs) {
+      obs.photoIds = [...(obs.photoIds||[]), photo.id];
+      obs.updatedAt = Date.now();
+      await db.put('observations', obs);
+    }
+
+    // Add thumb to grid
+    const grid = document.getElementById('photo-grid');
+    if (grid) {
+      const div = document.createElement('div');
+      div.className = 'photo-thumb fadein';
+      div.innerHTML = `<img src="${thumbUrl}" loading="lazy">
+        <button onclick="event.stopPropagation();deletePhoto('${photo.id}','${obsId}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`;
+      div.onclick = () => viewPhoto(photo.id);
+      const addBtnEl = document.getElementById('photo-add-btn');
+      grid.insertBefore(div, addBtnEl);
+    }
+    toast('Photo ajoutée ✓','ok');
+  } catch(e) {
+    toast('Erreur photo','err');
+    console.error(e);
+  } finally {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (addBtn) addBtn.style.opacity = '1';
+    evt.target.value = '';
+  }
+};
+
+window.deletePhoto = async function(photoId, obsId) {
+  if (!confirm('Supprimer cette photo ?')) return;
+  await db.delete('photos', photoId);
+  const obs = await db.get('observations', obsId);
+  if (obs) {
+    obs.photoIds = (obs.photoIds||[]).filter(id => id !== photoId);
+    await db.put('observations', obs);
+  }
+  const thumb = document.querySelector(`[onclick*="${photoId}"]`)?.closest('.photo-thumb');
+  if (thumb) thumb.remove();
+  toast('Photo supprimée','warn');
+};
+
+window.viewPhoto = async function(photoId) {
+  const photo = await db.get('photos', photoId);
+  if (!photo) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `<img src="${photo.dataUrl}" alt="">`;
+  overlay.onclick = () => overlay.remove();
+  document.body.appendChild(overlay);
+};
+
+/* ============================================================
+   PAGE : SETTINGS / ABOUT
+   ============================================================ */
+function renderSettings(app) {
+  app.innerHTML = `
+<div class="screen">
+  <div class="topbar">
+    <span class="topbar-title">DallAudit — À propos</span>
+  </div>
+  <div class="body">
+    <div style="text-align:center;padding:32px 0 24px">
+      <div style="width:72px;height:72px;background:var(--ink);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:var(--sh2)">
+        <span style="font-family:var(--fd);font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px">DA</span>
+      </div>
+      <h1 style="margin-bottom:4px">DallAudit</h1>
+      <p style="color:var(--ink3);font-size:13px;margin-bottom:0">${VERSION} — Application terrain</p>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <h3 style="margin-bottom:12px;font-size:13px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);font-weight:600">Fonctionnalités</h3>
+      ${['✅ Fonctionne hors-ligne (données sur cet appareil)','✅ Installable sur iPhone & Android','✅ Photos compressées automatiquement','✅ Rapports PDF téléchargeables','✅ 11 codes de pathologies','✅ Aucun serveur, aucun abonnement'].map(f=>`<p style="font-size:14px;margin-bottom:6px">${f}</p>`).join('')}
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <h3 style="margin-bottom:10px;font-size:13px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);font-weight:600">⚠ Important</h3>
+      <p style="font-size:13px;color:var(--ink2);margin-bottom:8px">Les données sont stockées <strong>uniquement sur cet appareil</strong>. Vider le navigateur efface tout.</p>
+      <p style="font-size:13px;color:var(--ink2);margin:0">Sauvegardez régulièrement vos données via les rapports PDF.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <h3 style="margin-bottom:12px;font-size:13px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);font-weight:600">Installer sur smartphone</h3>
+      <p style="font-size:13px;margin-bottom:4px"><strong>iPhone / iPad :</strong> Safari → Partager → "Sur l'écran d'accueil"</p>
+      <p style="font-size:13px;margin-bottom:4px"><strong>Android :</strong> Chrome → Menu ⋮ → "Ajouter à l'écran d'accueil"</p>
+      <p style="font-size:13px;margin:0"><strong>PC :</strong> Chrome/Edge → icône ⊕ dans la barre d'adresse</p>
+    </div>
+
+    <button class="btn btn-danger" style="width:100%" onclick="exportData()">
+      📦 Exporter toutes les données (JSON)
+    </button>
+  </div>
+  <nav class="nav">
+    <button class="nav-item" onclick="Router.go('dashboard')">${ICO.list}<span>Audits</span></button>
+    <button class="nav-item active">${ICO.info}<span>À propos</span></button>
+  </nav>
+</div>`;
+}
+
+window.exportData = async function() {
+  const data = {
+    exportedAt: new Date().toISOString(),
+    version: VERSION,
+    audits: await db.getAll('audits'),
+    observations: await db.getAll('observations'),
+    // Photos omises car trop lourdes — inclure photos séparément si besoin
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `dallaudit-export-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('Export téléchargé ✓','ok');
+};
+
+/* ============================================================
+   PDF GENERATION
+   ============================================================ */
+window.downloadPDF = async function(auditId) {
+  const btn = document.getElementById('pdf-btn');
+  if (btn) btn.textContent = '⏳ Génération…';
+
+  const audit = await db.get('audits', auditId);
+  const obs   = (await db.getByIndex('observations','auditId',auditId)).sort((a,b)=>a.ref.localeCompare(b.ref));
+
+  if (!window.jspdf) { toast('PDF non disponible (hors-ligne)','warn'); if(btn) btn.innerHTML = ICO.pdf+' PDF'; return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const W = 190; // usable width
+
+  const totalCrit = obs.filter(o=>o.sev==='critical').length;
+  const pathoStats = {};
+  for (const o of obs) pathoStats[o.patho] = (pathoStats[o.patho]||0)+1;
+
+  // ---- COVER PAGE ----
+  // Header band
+  doc.setFillColor(28,23,18);
+  doc.rect(0,0,210,45,'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(22); doc.setTextColor(255,255,255);
+  doc.text('DALLAUDIT', 10, 22);
+  doc.setFontSize(9); doc.setTextColor(201,78,26);
+  doc.text("RAPPORT D'AUDIT — DALLAGE INDUSTRIEL", 10, 32);
+  doc.setTextColor(180,180,180); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text(new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}), 10, 40);
+
+  // Title
+  doc.setTextColor(28,23,18); doc.setFont('helvetica','bold'); doc.setFontSize(18);
+  doc.text(audit.title, 10, 62, {maxWidth: W});
+  let y = 70 + Math.ceil(doc.getTextDimensions(audit.title,{maxWidth:W}).h);
+
+  if (audit.siteName) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(138,123,106);
+    doc.text(`Site : ${audit.siteName}`, 10, y); y += 7;
+  }
+  if (audit.description) {
+    doc.setFontSize(10); doc.setTextColor(74,63,53);
+    doc.text(audit.description, 10, y, {maxWidth: W}); y += 10;
+  }
+
+  // Divider
+  doc.setDrawColor(200,180,154); doc.setLineWidth(0.5);
+  doc.line(10, y+2, 200, y+2); y += 10;
+
+  // KPIs
+  const kpis = [['OBS. TOTALES', String(obs.length),'28,23,18'], ['CRITIQUES', String(totalCrit),'201,78,26'], ['STATUT', (STATUS_LABEL[audit.status]||'').toUpperCase(),'45,122,79']];
+  kpis.forEach(([lbl,val,col], i) => {
+    const x = 10 + i * 65;
+    doc.setFillColor(250,246,241); doc.rect(x, y, 60, 24, 'F');
+    const [r,g,b] = col.split(',').map(Number);
+    doc.setTextColor(r,g,b); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+    doc.text(val, x+30, y+14, {align:'center'});
+    doc.setTextColor(138,123,106); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+    doc.text(lbl, x+30, y+21, {align:'center'});
+  });
+  y += 32;
+
+  // Pathology bars
+  if (Object.keys(pathoStats).length > 0) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(28,23,18);
+    doc.text('RÉPARTITION PAR PATHOLOGIE', 10, y); y += 7;
+
+    const total = obs.length || 1;
+    for (const [code, count] of Object.entries(pathoStats).sort(([,a],[,b])=>b-a)) {
+      const pct = count / total;
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(74,63,53);
+      doc.text(`${code} — ${PATHO_MAP[code]||code}`, 10, y, {maxWidth:110});
+      doc.text(`${count} (${Math.round(pct*100)}%)`, 160, y, {align:'right'});
+      doc.setFillColor(232,223,208); doc.rect(10, y+1, W, 5, 'F');
+      doc.setFillColor(201,78,26); doc.rect(10, y+1, W*pct, 5, 'F');
+      y += 10;
+      if (y > 270) { doc.addPage(); y = 20; }
+    }
+  }
+
+  // ---- OBSERVATIONS ----
+  doc.addPage();
+
+  // Page header
+  const pageHeader = () => {
+    doc.setFillColor(28,23,18); doc.rect(0,0,210,16,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(255,255,255);
+    doc.text('LISTE DES OBSERVATIONS', 10, 11);
+    doc.setTextColor(201,78,26); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.text(audit.title.slice(0,55), 200, 11, {align:'right'});
+    return 24;
+  };
+
+  y = pageHeader();
+
+  // Table header
+  const drawTHead = (yy) => {
+    doc.setFillColor(42,37,33); doc.rect(10, yy, W, 7, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,255,255);
+    ['RÉF','PATHOLOGIE','SÉV.','QTÉ','DESCRIPTION'].forEach((h,i) => {
+      const xs = [10,30,80,102,118];
+      doc.text(h, xs[i]+1, yy+4.5);
+    });
+    return yy + 9;
+  };
+  y = drawTHead(y);
+
+  let alt = false;
+  for (const obs_item of obs) {
+    const photos = [];
+    for (const pid of (obs_item.photoIds||[]).slice(0,3)) {
+      const ph = await db.get('photos', pid);
+      if (ph) photos.push(ph.dataUrl);
+    }
+    const hasPhotos = photos.length > 0;
+    const descLines = Math.ceil((obs_item.desc?.length||0) / 50) || 1;
+    const rowH = Math.max(8, descLines * 4 + 6) + (hasPhotos ? 30 : 0);
+
+    if (y + rowH > 278) {
+      doc.addPage(); y = pageHeader(); y = drawTHead(y); alt = false;
+    }
+
+    // Row background
+    if (alt) { doc.setFillColor(250,246,241); doc.rect(10, y, W, rowH, 'F'); }
+
+    // Severity stripe
+    doc.setFillColor(...(obs_item.sev==='critical' ? [201,78,26] : [45,122,79]));
+    doc.rect(10, y, 3, rowH, 'F');
+
+    // Content
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(28,23,18);
+    doc.text(obs_item.ref, 14, y+5);
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(74,63,53);
+    doc.text(`${obs_item.patho} ${PATHO_MAP[obs_item.patho]||''}`, 30, y+5, {maxWidth:48});
+
+    const sevLabel = obs_item.sev==='critical' ? 'CRIT.' : 'NORM.';
+    doc.setTextColor(...(obs_item.sev==='critical' ? [201,78,26] : [45,122,79]));
+    doc.setFont('helvetica','bold'); doc.setFontSize(6);
+    doc.text(sevLabel, 80, y+5);
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(138,123,106);
+    if (obs_item.qty > 0) doc.text(`${obs_item.qty}m²`, 102, y+5);
+
+    doc.setTextColor(74,63,53); doc.setFontSize(7);
+    if (obs_item.desc) doc.text(obs_item.desc, 118, y+5, {maxWidth:82});
+
+    // Photos
+    if (hasPhotos) {
+      let px = 30;
+      const imgY = y + rowH - 28;
+      for (const dataUrl of photos) {
+        try { doc.addImage(dataUrl, 'JPEG', px, imgY, 25, 25); px += 27; } catch(e) {}
+      }
+    }
+
+    y += rowH + 1;
+    alt = !alt;
+  }
+
+  // Footer
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(138,123,106);
+    doc.line(10,285,200,285);
+    doc.text(`DallAudit ${VERSION} — ${obs.length} observations — ${totalCrit} critiques — Généré le ${new Date().toLocaleString('fr-FR')}`, 105, 289, {align:'center'});
+    doc.text(`${i}/${pageCount}`, 200, 289, {align:'right'});
+  }
+
+  const filename = `rapport-${audit.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.pdf`;
+  doc.save(filename);
+  toast('Rapport téléchargé ✓','ok');
+  if (btn) btn.innerHTML = ICO.pdf + ' PDF';
+};
+
+/* ============================================================
+   HTML ESCAPE
+   ============================================================ */
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ============================================================
+   PWA SERVICE WORKER
+   ============================================================ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(() => {
+    console.log('[sw] registered');
+  }).catch(e => console.warn('[sw] error', e));
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+async function init() {
+  try {
+    await db.open();
+  } catch(e) {
+    document.getElementById('app').innerHTML = `<div style="padding:40px;text-align:center;color:var(--acc)"><p>Erreur d'initialisation de la base de données.</p><p style="font-size:12px">${e.message}</p></div>`;
+    return;
+  }
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
