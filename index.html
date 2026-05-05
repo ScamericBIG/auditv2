@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DallAudit — BIG</title>
+<meta name="theme-color" content="#1C1712">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DallAudit">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F0E9DC;--bg2:#E6DDD0;--surf:#FAF6F1;--ink:#1C1712;
+  --ink2:#4A3F35;--ink3:#8A7B6A;--acc:#C94E1A;--acc2:#A03A10;
+  --grn:#2D7A4F;--grn2:#EBF5EF;--warn:#B08020;--warn2:#FFF8E6;
+  --brd:#C8B49A;--brd2:#DDD0BE;
+  --fd:'Bricolage Grotesque',system-ui,sans-serif;
+  --fb:'DM Sans',system-ui,sans-serif;
+  --fm:'DM Mono','Courier New',monospace;
+  --sh1:0 1px 3px rgba(28,23,18,.10);
+  --sh3:0 12px 32px rgba(28,23,18,.14),0 4px 8px rgba(28,23,18,.08);
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body,#app{height:100%;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+h1,h2,h3{font-family:var(--fd);font-weight:800;line-height:1.2;margin:0}
+p{margin:0 0 .75rem}
+button{font-family:var(--fb);cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:var(--fb);font-size:15px;color:var(--ink);outline:none}
+.screen{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+.topbar{display:flex;align-items:center;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));background:var(--ink);color:#fff;gap:10px;min-height:56px;flex-shrink:0}
+.topbar-title{flex:1;font-family:var(--fd);font-weight:800;font-size:17px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar-back{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;border:none;flex-shrink:0}
+.topbar-btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:600;border:none;cursor:pointer;white-space:nowrap}
+.nav{display:flex;background:var(--surf);border-top:1px solid var(--brd2);padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;gap:3px;color:var(--ink3);font-size:10px;font-weight:600;font-family:var(--fm);text-transform:uppercase;letter-spacing:.04em;background:none;border:none;cursor:pointer}
+.nav-item svg{width:22px;height:22px}
+.nav-item.active{color:var(--acc)}
+.card{background:var(--surf);border:1px solid var(--brd2);border-radius:16px;padding:18px;box-shadow:var(--sh1)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;font-family:var(--fb);transition:all .15s;white-space:nowrap;border:none;cursor:pointer}
+.btn-prim{background:var(--ink);color:#fff}
+.btn-acc{background:var(--acc);color:#fff}
+.btn-ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--brd)}
+.btn-ghost:hover{background:var(--bg2)}
+.btn-danger{background:#FFF0ED;color:var(--acc);border:1.5px solid #FACEBC}
+.btn-lg{padding:14px 28px;font-size:16px;border-radius:14px}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.fab{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));right:20px;width:56px;height:56px;border-radius:50%;background:var(--acc);color:#fff;font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh3);z-index:100;border:none;cursor:pointer}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)}
+.field input,.field select,.field textarea{background:var(--surf);border:1.5px solid var(--brd2);border-radius:10px;padding:10px 13px;font-size:15px;color:var(--ink);width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink);outline:none}
+.field textarea{resize:vertical;min-height:80px}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A7B6A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;font-family:var(--fm);text-transform:uppercase;letter-spacing:.04em}
+.b-surv{background:#FFF8E6;color:var(--warn)}
+.b-crit{background:#FCEAE4;color:var(--acc)}
+.b-draft{background:var(--bg2);color:var(--ink3)}
+.b-prog{background:#EEF4FF;color:#2B5CB5}
+.b-done{background:var(--grn2);color:var(--grn)}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-bottom:8px}
+.photo-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--bg2);position:relative;cursor:pointer}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.photo-add{aspect-ratio:1;border-radius:10px;border:2px dashed var(--brd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink3);font-size:11px;font-weight:600;cursor:pointer;background:transparent}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;gap:12px;color:var(--ink3)}
+.empty svg{opacity:.3;width:52px;height:52px}
+.empty p{margin:0;font-size:13px;max-width:220px}
+.spin{width:20px;height:20px;border:2.5px solid var(--brd2);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toasts{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom) + 8px);left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none;width:90%;max-width:340px}
+.toast{background:var(--ink);color:#fff;padding:10px 16px;border-radius:14px;font-size:13px;font-weight:500;box-shadow:var(--sh3);animation:tin .25s ease;text-align:center}
+.toast-ok{background:var(--grn)}
+.toast-err{background:var(--acc)}
+.toast-warn{background:var(--warn)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.tabs{display:flex;background:var(--ink);padding:0 14px 10px;gap:6px;flex-wrap:wrap}
+.tab{padding:6px 13px;border-radius:100px;font-size:11px;font-weight:600;font-family:var(--fm);text-transform:uppercase;letter-spacing:.04em;background:rgba(255,255,255,.1);color:#fff;border:none;cursor:pointer;white-space:nowrap}
+.tab.on{background:var(--acc)}
+.patho{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;font-family:var(--fm);background:var(--bg2);color:var(--ink);border:1px solid var(--brd2)}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--surf);border:1px solid var(--brd2);border-radius:14px;padding:12px 6px;text-align:center}
+.kpi-val{font-family:var(--fd);font-weight:800;font-size:22px;line-height:1}
+.kpi-lbl{font-size:9px;font-family:var(--fm);color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.overlay img{max-width:100%;max-height:100%;object-fit:contain}
+.sev-opts{display:flex;gap:10px}
+.sev-opt{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:10px;border:2px solid var(--brd2);cursor:pointer;font-size:14px;font-weight:600}
+.sev-surv{border-color:var(--warn);background:var(--warn2);color:var(--warn)}
+.sev-crit{border-color:var(--acc);background:#FDF0EB;color:var(--acc)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qty-wrap{display:flex}
+.qty-wrap input{border-radius:10px 0 0 10px!important;flex:1}
+.qty-unit{font-size:13px;font-family:var(--fm);color:var(--ink3);padding:10px 12px;background:var(--bg2);border-radius:0 10px 10px 0;border:1.5px solid var(--brd2);border-left:none;white-space:nowrap;display:flex;align-items:center}
+.bar-bg{height:6px;background:var(--bg2);border-radius:3px}
+.bar-fg{height:100%;background:var(--acc);border-radius:3px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:7px 10px;font-family:var(--fm);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);background:var(--bg2)}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--brd2)}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:fadein .22s ease}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toasts" id="toasts"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const VERSION = 'v3.1';
+
+const PATHOS = [
+  {code:'FIS',label:'Fissure',unit:'ml'},
+  {code:'ECL',label:'Eclat / Epaufrure',unit:'u'},
+  {code:'AFF',label:'Affaissement',unit:'m2'},
+  {code:'DEC',label:'Decollement',unit:'m2'},
+  {code:'TAS',label:'Tassement differentiel',unit:'m2'},
+  {code:'USU',label:'Usure prematuree',unit:'m2'},
+  {code:'HUM',label:'Humidite / Remontee',unit:'m2'},
+  {code:'FER',label:'Ferraillage apparent',unit:'m2'},
+  {code:'JOI',label:'Joint degrade',unit:'ml'},
+  {code:'DAL',label:'Dalle cassee',unit:'u'},
+  {code:'PIA',label:'Pianotage',unit:'ml'},
+  {code:'SEU',label:'Seuil',unit:'ml'},
+  {code:'PON',label:'Poncage',unit:'m2'},
+  {code:'DEN',label:'Densification',unit:'m2'},
+  {code:'AUT',label:'Autre',unit:'m2'}
+];
+
+const PATHO_MAP = {};
+for (var i = 0; i < PATHOS.length; i++) {
+  PATHO_MAP[PATHOS[i].code] = PATHOS[i];
+}
+
+const STATUS_LABEL = {draft:'Brouillon', in_progress:'En cours', completed:'Termine'};
+const STATUS_CLS   = {draft:'b-draft',   in_progress:'b-prog',   completed:'b-done'};
+
+function uid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 3 | 8)).toString(16);
+  });
+}
+
+function fmtDate(ts) {
+  return new Date(ts).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', year:'numeric'});
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function toast(msg, type, dur) {
+  dur = dur || 3000;
+  var el = document.createElement('div');
+  el.className = 'toast' + (type ? ' toast-' + type : '');
+  el.textContent = msg;
+  var c = document.getElementById('toasts');
+  c.appendChild(el);
+  setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, dur);
+}
+
+/* ---- IndexedDB ---- */
+var DB_NAME = 'dallaudit_pwa';
+var DB_VER  = 4;
+var db = null;
+
+function openDB() {
+  return new Promise(function(res, rej) {
+    var req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = function(e) {
+      var d = e.target.result;
+      if (!d.objectStoreNames.contains('audits')) d.createObjectStore('audits', {keyPath:'id'});
+      if (!d.objectStoreNames.contains('observations')) {
+        var s = d.createObjectStore('observations', {keyPath:'id'});
+        s.createIndex('auditId','auditId',{unique:false});
+      }
+      if (!d.objectStoreNames.contains('photos')) {
+        var p = d.createObjectStore('photos', {keyPath:'id'});
+        p.createIndex('obsId','obsId',{unique:false});
+      }
+    };
+    req.onsuccess = function(e) { db = e.target.result; res(); };
+    req.onerror   = function(e) { rej(e.target.error); };
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise(function(res, rej) {
+    var r = db.transaction(store).objectStore(store).getAll();
+    r.onsuccess = function(e) { res(e.target.result); };
+    r.onerror   = function(e) { rej(e.target.error); };
+  });
+}
+
+function dbGet(store, id) {
+  return new Promise(function(res, rej) {
+    var r = db.transaction(store).objectStore(store).get(id);
+    r.onsuccess = function(e) { res(e.target.result); };
+    r.onerror   = function(e) { rej(e.target.error); };
+  });
+}
+
+function dbPut(store, item) {
+  return new Promise(function(res, rej) {
+    var r = db.transaction(store,'readwrite').objectStore(store).put(item);
+    r.onsuccess = function(e) { res(e.target.result); };
+    r.onerror   = function(e) { rej(e.target.error); };
+  });
+}
+
+function dbDelete(store, id) {
+  return new Promise(function(res, rej) {
+    var r = db.transaction(store,'readwrite').objectStore(store).delete(id);
+    r.onsuccess = function() { res(); };
+    r.onerror   = function(e) { rej(e.target.error); };
+  });
+}
+
+function dbByIndex(store, idx, val) {
+  return new Promise(function(res, rej) {
+    var r = db.transaction(store).objectStore(store).index(idx).getAll(val);
+    r.onsuccess = function(e) { res(e.target.result); };
+    r.onerror   = function(e) { rej(e.target.error); };
+  });
+}
+
+/* ---- Photo compression ---- */
+function compressPhoto(file, maxDim, quality) {
+  maxDim = maxDim || 1600;
+  quality = quality || 0.80;
+  return new Promise(function(res, rej) {
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function() {
+      URL.revokeObjectURL(url);
+      var ratio = Math.min(maxDim / img.naturalWidth, maxDim / img.naturalHeight, 1);
+      var w = Math.round(img.naturalWidth * ratio);
+      var h = Math.round(img.naturalHeight * ratio);
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      c.toBlob(function(blob) {
+        if (!blob) { rej(new Error('Compression echouee')); return; }
+        var reader = new FileReader();
+        reader.onload = function() { res({dataUrl: reader.result, bytes: blob.size}); };
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = function() { URL.revokeObjectURL(url); rej(new Error('Image illisible')); };
+    img.src = url;
+  });
+}
+
+function makeThumb(dataUrl) {
+  return new Promise(function(res) {
+    var img = new Image();
+    img.onload = function() {
+      var size = 200;
+      var ratio = Math.min(size / img.width, size / img.height, 1);
+      var w = Math.round(img.width * ratio);
+      var h = Math.round(img.height * ratio);
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', 0.72));
+    };
+    img.src = dataUrl;
+  });
+}
+
+/* ---- Temp photos for new obs ---- */
+var tempPhotos = [];
+
+/* ---- Router ---- */
+var currentTab = 'list';
+
+function goTo(hash) { location.hash = hash; }
+function goBack() { history.back(); }
+
+async function render() {
+  var hash = location.hash.slice(1) || 'dashboard';
+  var app = document.getElementById('app');
+  app.innerHTML = '';
+  if (hash === 'dashboard') {
+    await renderDashboard(app);
+  } else if (hash.startsWith('audit/')) {
+    await renderAudit(app, hash.split('/')[1]);
+  } else if (hash.startsWith('obs/')) {
+    var parts = hash.split('/');
+    var auditId = parts[1];
+    var rawId   = parts[2] || '';
+    var qpos    = rawId.indexOf('?');
+    var obsId   = qpos >= 0 ? rawId.slice(0, qpos) : rawId;
+    var qs      = qpos >= 0 ? rawId.slice(qpos + 1) : '';
+    var params  = {};
+    if (qs) { qs.split('&').forEach(function(p) { var kv = p.split('='); params[kv[0]] = kv[1]; }); }
+    await renderObsForm(app, auditId, obsId, params);
+  } else if (hash === 'settings') {
+    renderSettings(app);
+  } else {
+    await renderDashboard(app);
+  }
+}
+
+window.addEventListener('hashchange', render);
+
+/* ---- SVG icons ---- */
+var ICO = {
+  list:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4" stroke-linecap="round"/></svg>',
+  info:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  back:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round"/></svg>',
+  pdf:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>',
+  cam:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>'
+};
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+async function renderDashboard(app) {
+  var audits = await dbGetAll('audits');
+  audits.sort(function(a,b) { return b.updatedAt - a.updatedAt; });
+  var allObs = await dbGetAll('observations');
+  var totalCrit = 0;
+  for (var i = 0; i < allObs.length; i++) { if (allObs[i].sev === 'critical') totalCrit++; }
+
+  var auditCards = '';
+  for (var i = 0; i < audits.length; i++) {
+    var a = audits[i];
+    var obs = allObs.filter(function(o) { return o.auditId === a.id; });
+    var crit = obs.filter(function(o) { return o.sev === 'critical'; }).length;
+    auditCards += '<div class="card fadein" style="cursor:pointer;margin-bottom:10px;padding:14px 16px" onclick="goTo(\'audit/' + a.id + '\')">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px">'
+      + '<h3 style="font-size:15px;flex:1;line-height:1.3">' + esc(a.title) + '</h3>'
+      + '<span class="badge ' + (STATUS_CLS[a.status] || 'b-draft') + '">' + (STATUS_LABEL[a.status] || a.status) + '</span>'
+      + '</div>'
+      + (a.siteName ? '<p style="font-size:12px;color:var(--ink3);margin:0 0 4px">&#128205; ' + esc(a.siteName) + '</p>' : '')
+      + (a.auditorName ? '<p style="font-size:12px;color:var(--ink3);margin:0 0 6px">&#128100; ' + esc(a.auditorName) + '</p>' : '')
+      + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+      + '<span style="font-size:12px;color:var(--ink3);font-family:var(--fm)">' + obs.length + ' obs.</span>'
+      + (crit > 0 ? '<span class="badge b-crit">' + crit + ' critique' + (crit > 1 ? 's' : '') + '</span>' : '')
+      + (a.auditDate ? '<span style="font-size:11px;color:var(--ink3)">' + esc(a.auditDate) + '</span>' : '')
+      + '<span style="font-size:11px;color:var(--ink3);margin-left:auto">' + fmtDate(a.updatedAt) + '</span>'
+      + '</div></div>';
+  }
+
+  app.innerHTML = '<div class="screen">'
+    + '<div class="topbar">'
+    + '<span class="topbar-title">DallAudit ' + VERSION + '</span>'
+    + '<button class="topbar-btn" onclick="goTo(\'settings\')">' + ICO.info + '</button>'
+    + '</div>'
+    + '<div class="body">'
+    + '<div class="kpi-grid" style="margin-bottom:18px">'
+    + '<div class="kpi"><div class="kpi-val">' + audits.length + '</div><div class="kpi-lbl">Audits</div></div>'
+    + '<div class="kpi"><div class="kpi-val">' + allObs.length + '</div><div class="kpi-lbl">Observations</div></div>'
+    + '<div class="kpi"><div class="kpi-val" style="color:' + (totalCrit > 0 ? 'var(--acc)' : 'var(--ink)') + '">' + totalCrit + '</div><div class="kpi-lbl">Critiques</div></div>'
+    + '</div>'
+    + '<div id="new-audit-area"></div>'
+    + '<div style="font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;font-weight:600;font-family:var(--fm);margin-bottom:10px">Mes audits (' + audits.length + ')</div>'
+    + (audits.length === 0 ? '<div class="empty">' + ICO.list + '<p>Aucun audit. Appuyez sur + pour commencer.</p></div>' : auditCards)
+    + '</div>'
+    + '<nav class="nav">'
+    + '<button class="nav-item active">' + ICO.list + '<span>Audits</span></button>'
+    + '<button class="nav-item" onclick="goTo(\'settings\')">' + ICO.info + '<span>Infos</span></button>'
+    + '</nav>'
+    + '</div>'
+    + '<button class="fab" onclick="showNewAuditForm()" title="Nouvel audit">+</button>';
+}
+
+function showNewAuditForm() {
+  var area = document.getElementById('new-audit-area');
+  if (!area) return;
+  area.innerHTML = '<div class="card fadein" style="margin-bottom:16px">'
+    + '<h3 style="margin-bottom:14px">Nouvel audit</h3>'
+    + '<div class="field"><label>Titre *</label><input id="na-title" type="text" placeholder="ex: Audit Zone A"></div>'
+    + '<div class="row2">'
+    + '<div class="field"><label>Site</label><input id="na-site" type="text" placeholder="ex: Entrepot Lyon"></div>'
+    + '<div class="field"><label>Date audit</label><input id="na-date" type="date"></div>'
+    + '</div>'
+    + '<div class="field"><label>Charge d\'affaires</label><input id="na-auditor" type="text" placeholder="Nom"></div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn btn-acc" onclick="createAudit()">Creer</button>'
+    + '<button class="btn btn-ghost btn-sm" onclick="this.closest(\'.card\').remove()">Annuler</button>'
+    + '</div></div>';
+  var t = document.getElementById('na-title');
+  if (t) t.focus();
+}
+
+async function createAudit() {
+  var title = (document.getElementById('na-title').value || '').trim();
+  if (!title) { toast('Titre requis', 'err'); return; }
+  var now = Date.now();
+  var audit = {
+    id: uid(), title: title,
+    siteName:     (document.getElementById('na-site').value || '').trim(),
+    auditDate:    document.getElementById('na-date').value || null,
+    auditorName:  (document.getElementById('na-auditor').value || '').trim(),
+    status: 'draft', createdAt: now, updatedAt: now
+  };
+  await dbPut('audits', audit);
+  toast('Audit cree', 'ok');
+  goTo('audit/' + audit.id);
+}
+
+/* ============================================================
+   AUDIT DETAIL
+   ============================================================ */
+async function renderAudit(app, auditId) {
+  var audit = await dbGet('audits', auditId);
+  if (!audit) { goTo('dashboard'); return; }
+  var obs = await dbByIndex('observations', 'auditId', auditId);
+  obs.sort(function(a,b) { return a.ref < b.ref ? -1 : 1; });
+  var crit = obs.filter(function(o) { return o.sev === 'critical'; }).length;
+  var surv = obs.filter(function(o) { return o.sev === 'surveiller'; }).length;
+
+  app.innerHTML = '<div class="screen">'
+    + '<div class="topbar">'
+    + '<button class="topbar-back" onclick="goTo(\'dashboard\')">' + ICO.back + '</button>'
+    + '<span class="topbar-title">' + esc(audit.title) + '</span>'
+    + '<button class="topbar-btn" id="pdf-btn" onclick="downloadPDF(\'' + auditId + '\')">' + ICO.pdf + ' PDF</button>'
+    + '</div>'
+    + '<div class="tabs">'
+    + '<button class="tab ' + (currentTab === 'list' ? 'on' : '') + '" onclick="switchTab(\'list\',\'' + auditId + '\')">Liste (' + obs.length + ')</button>'
+    + '<button class="tab ' + (currentTab === 'stats' ? 'on' : '') + '" onclick="switchTab(\'stats\',\'' + auditId + '\')">Rapport</button>'
+    + '<button class="tab ' + (currentTab === 'edit' ? 'on' : '') + '" onclick="switchTab(\'edit\',\'' + auditId + '\')">Infos</button>'
+    + '</div>'
+    + '<div class="body">'
+    + '<div class="kpi-grid" style="margin-bottom:16px">'
+    + '<div class="kpi"><div class="kpi-val">' + obs.length + '</div><div class="kpi-lbl">Total</div></div>'
+    + '<div class="kpi"><div class="kpi-val" style="color:' + (crit > 0 ? 'var(--acc)' : 'var(--ink)') + '">' + crit + '</div><div class="kpi-lbl">Critiques</div></div>'
+    + '<div class="kpi"><div class="kpi-val" style="color:' + (surv > 0 ? 'var(--warn)' : 'var(--ink)') + '">' + surv + '</div><div class="kpi-lbl">A surveiller</div></div>'
+    + '</div>'
+    + '<div id="tab-content"></div>'
+    + '</div>'
+    + '<nav class="nav">'
+    + '<button class="nav-item" onclick="goTo(\'dashboard\')">' + ICO.list + '<span>Audits</span></button>'
+    + '<button class="nav-item active">' + ICO.list + '<span>Audit</span></button>'
+    + '<button class="nav-item" onclick="goTo(\'settings\')">' + ICO.info + '<span>Infos</span></button>'
+    + '</nav>'
+    + '</div>'
+    + '<button class="fab" onclick="goTo(\'obs/' + auditId + '/new\')" title="Nouvelle observation">+</button>';
+
+  renderTab(currentTab, obs, audit, auditId);
+}
+
+async function switchTab(tab, auditId) {
+  currentTab = tab;
+  await renderAudit(document.getElementById('app'), auditId);
+}
+
+function renderTab(tab, obs, audit, auditId) {
+  var el = document.getElementById('tab-content');
+  if (!el) return;
+
+  if (tab === 'list') {
+    if (obs.length === 0) {
+      el.innerHTML = '<div class="empty">' + ICO.list + '<p>Aucune observation. Appuyez sur + pour en ajouter.</p></div>';
+      return;
+    }
+    var html = '';
+    for (var i = 0; i < obs.length; i++) {
+      var o = obs[i];
+      var p = PATHO_MAP[o.patho] || {code: o.patho, label: o.patho, unit: ''};
+      var dot = o.sev === 'critical' ? 'var(--acc)' : o.sev === 'surveiller' ? 'var(--warn)' : 'var(--grn)';
+      html += '<div class="card fadein" style="cursor:pointer;padding:13px 15px;margin-bottom:8px" onclick="goTo(\'obs/' + auditId + '/' + o.id + '\')">'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">'
+        + '<div style="width:9px;height:9px;border-radius:50%;background:' + dot + ';flex-shrink:0"></div>'
+        + '<span style="font-family:var(--fm);font-weight:700;font-size:13px">' + esc(o.ref) + '</span>'
+        + '<span class="patho">' + esc(o.patho) + ' — ' + esc(p.label) + '</span>'
+        + (o.zone ? '<span style="font-size:11px;color:var(--ink3)">&#128205;' + esc(o.zone) + '</span>' : '')
+        + '</div>'
+        + (o.desc ? '<p style="font-size:13px;color:var(--ink2);margin:0 0 5px">' + esc(o.desc.slice(0, 120)) + (o.desc.length > 120 ? '…' : '') + '</p>' : '')
+        + '<div style="display:flex;gap:10px;flex-wrap:wrap">'
+        + (o.qty > 0 ? '<span style="font-size:11px;font-family:var(--fm);color:var(--ink3)">' + o.qty + ' ' + p.unit + '</span>' : '')
+        + (o.photoIds && o.photoIds.length > 0 ? '<span style="font-size:11px;color:var(--ink3)">&#128247; ' + o.photoIds.length + '</span>' : '')
+        + (o.obsDate ? '<span style="font-size:11px;color:var(--ink3)">' + esc(o.obsDate) + '</span>' : '')
+        + '</div></div>';
+    }
+    el.innerHTML = html;
+
+  } else if (tab === 'stats') {
+    var stats = {};
+    for (var i = 0; i < obs.length; i++) {
+      var o = obs[i];
+      if (!stats[o.patho]) stats[o.patho] = {count:0, total:0, unit: (PATHO_MAP[o.patho] || {unit:''}).unit};
+      stats[o.patho].count++;
+      stats[o.patho].total += (o.qty || 0);
+    }
+    var sorted = Object.keys(stats).map(function(k) { return [k, stats[k]]; });
+    sorted.sort(function(a, b) { return b[1].count - a[1].count; });
+    var total = obs.length || 1;
+
+    var trows = '';
+    for (var i = 0; i < sorted.length; i++) {
+      var code = sorted[i][0], s = sorted[i][1];
+      var lbl = (PATHO_MAP[code] || {label: code}).label;
+      var bg = i % 2 === 0 ? 'var(--surf)' : 'var(--bg2)';
+      trows += '<tr style="background:' + bg + '">'
+        + '<td style="font-weight:600">' + esc(code) + ' — ' + esc(lbl) + '</td>'
+        + '<td style="text-align:center;font-family:var(--fm)">' + s.count + '</td>'
+        + '<td style="text-align:right;font-family:var(--fm);font-weight:700;color:var(--acc)">'
+        + (s.total > 0 ? s.total.toFixed(s.unit === 'u' ? 0 : 1) + ' ' + s.unit : '—') + '</td>'
+        + '</tr>';
+    }
+
+    var bars = '';
+    for (var i = 0; i < sorted.length; i++) {
+      var code = sorted[i][0], s = sorted[i][1];
+      var lbl = (PATHO_MAP[code] || {label: code}).label;
+      var pct = Math.round(s.count / total * 100);
+      bars += '<div style="margin-bottom:9px">'
+        + '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">'
+        + '<span style="font-family:var(--fm)">' + esc(code) + ' — ' + esc(lbl) + '</span>'
+        + '<span style="color:var(--ink3)">' + s.count + ' (' + pct + '%)</span>'
+        + '</div>'
+        + '<div class="bar-bg"><div class="bar-fg" style="width:' + pct + '%"></div></div>'
+        + '</div>';
+    }
+
+    el.innerHTML = '<div class="card" style="margin-bottom:12px">'
+      + '<div style="font-size:11px;font-family:var(--fm);text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:12px;letter-spacing:.05em">Recapitulatif des metres</div>'
+      + (sorted.length === 0 ? '<p style="color:var(--ink3);font-size:13px">Aucune observation.</p>' :
+        '<table class="tbl"><thead><tr><th>Pathologie</th><th style="text-align:center">Nb</th><th style="text-align:right">Total</th></tr></thead><tbody>' + trows + '</tbody></table>')
+      + '</div>'
+      + '<div class="card" style="margin-bottom:12px">'
+      + '<div style="font-size:11px;font-family:var(--fm);text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:12px;letter-spacing:.05em">Repartition</div>'
+      + (bars || '<p style="color:var(--ink3);font-size:13px">Aucune observation.</p>')
+      + '</div>'
+      + '<button class="btn btn-acc btn-lg" style="width:100%" onclick="downloadPDF(\'' + audit.id + '\')">' + ICO.pdf + ' Telecharger le rapport PDF</button>';
+
+  } else if (tab === 'edit') {
+    var statusOpts = '';
+    ['draft','in_progress','completed'].forEach(function(s) {
+      statusOpts += '<option value="' + s + '"' + (audit.status === s ? ' selected' : '') + '>' + STATUS_LABEL[s] + '</option>';
+    });
+    el.innerHTML = '<div class="card fadein">'
+      + '<h3 style="margin-bottom:14px">Informations</h3>'
+      + '<div class="field"><label>Titre *</label><input id="e-title" type="text" value="' + esc(audit.title) + '"></div>'
+      + '<div class="row2">'
+      + '<div class="field"><label>Site</label><input id="e-site" type="text" value="' + esc(audit.siteName || '') + '"></div>'
+      + '<div class="field"><label>Date audit</label><input id="e-date" type="date" value="' + esc(audit.auditDate || '') + '"></div>'
+      + '</div>'
+      + '<div class="field"><label>Charge d\'affaires</label><input id="e-auditor" type="text" value="' + esc(audit.auditorName || '') + '"></div>'
+      + '<div class="field"><label>Description</label><textarea id="e-desc">' + esc(audit.description || '') + '</textarea></div>'
+      + '<div class="field"><label>Statut</label><select id="e-status">' + statusOpts + '</select></div>'
+      + '<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">'
+      + '<button class="btn btn-acc" onclick="saveAudit(\'' + audit.id + '\')">Enregistrer</button>'
+      + '<button class="btn btn-danger btn-sm" onclick="confirmDeleteAudit(\'' + audit.id + '\')">Supprimer</button>'
+      + '</div></div>';
+  }
+}
+
+async function saveAudit(auditId) {
+  var audit = await dbGet('audits', auditId);
+  if (!audit) return;
+  var title = (document.getElementById('e-title').value || '').trim();
+  if (!title) { toast('Titre requis', 'err'); return; }
+  audit.title       = title;
+  audit.siteName    = (document.getElementById('e-site').value || '').trim();
+  audit.auditDate   = document.getElementById('e-date').value || null;
+  audit.auditorName = (document.getElementById('e-auditor').value || '').trim();
+  audit.description = (document.getElementById('e-desc').value || '').trim();
+  audit.status      = document.getElementById('e-status').value;
+  audit.updatedAt   = Date.now();
+  await dbPut('audits', audit);
+  toast('Enregistre', 'ok');
+  await renderAudit(document.getElementById('app'), auditId);
+}
+
+async function confirmDeleteAudit(auditId) {
+  if (!confirm('Supprimer cet audit et toutes ses observations ?')) return;
+  var obs = await dbByIndex('observations', 'auditId', auditId);
+  for (var i = 0; i < obs.length; i++) {
+    var ids = obs[i].photoIds || [];
+    for (var j = 0; j < ids.length; j++) await dbDelete('photos', ids[j]);
+    await dbDelete('observations', obs[i].id);
+  }
+  await dbDelete('audits', auditId);
+  toast('Audit supprime', 'warn');
+  goTo('dashboard');
+}
+
+/* ============================================================
+   OBSERVATION FORM
+   ============================================================ */
+async function renderObsForm(app, auditId, obsId, params) {
+  params = params || {};
+  var isNew = obsId === 'new';
+  var audit = await dbGet('audits', auditId);
+  var obs = isNew ? null : await dbGet('observations', obsId);
+  var photos = obs ? await dbByIndex('photos', 'obsId', obs.id) : [];
+  if (isNew) tempPhotos = [];
+
+  var defaultPatho = params.patho || 'FIS';
+  var autoRef = isNew ? await getAutoRef(auditId, defaultPatho) : '';
+  var f = obs || {ref: autoRef, patho: defaultPatho, sev: 'surveiller', desc: '', qty: '', zone: '', obsDate: audit ? audit.auditDate || '' : ''};
+  var cp = PATHO_MAP[f.patho] || PATHOS[0];
+
+  var pathoOpts = '';
+  PATHOS.forEach(function(p) {
+    pathoOpts += '<option value="' + p.code + '"' + (f.patho === p.code ? ' selected' : '') + '>' + p.code + ' — ' + p.label + '</option>';
+  });
+
+  var photosHtml = '';
+  if (!isNew) {
+    for (var i = 0; i < photos.length; i++) {
+      var ph = photos[i];
+      photosHtml += '<div class="photo-thumb"><img src="' + (ph.thumbUrl || ph.dataUrl) + '" loading="lazy" onclick="viewPhoto(\'' + ph.id + '\',false,0)">'
+        + '<button class="photo-del" onclick="deletePhoto(\'' + ph.id + '\',\'' + obs.id + '\')">&#10005;</button></div>';
+    }
+  } else {
+    for (var i = 0; i < tempPhotos.length; i++) {
+      var tp = tempPhotos[i];
+      photosHtml += '<div class="photo-thumb"><img src="' + tp.thumbUrl + '" onclick="viewPhoto(\'\',true,' + i + ')">'
+        + '<button class="photo-del" onclick="delTempPhoto(' + i + ')">&#10005;</button></div>';
+    }
+  }
+
+  app.innerHTML = '<div class="screen">'
+    + '<div class="topbar">'
+    + '<button class="topbar-back" onclick="cancelObs(\'' + auditId + '\')">' + ICO.back + '</button>'
+    + '<span class="topbar-title">' + (isNew ? 'Nouvelle observation' : 'Modifier ' + esc(f.ref)) + '</span>'
+    + (!isNew ? '<button class="topbar-btn" onclick="confirmDelObs(\'' + obs.id + '\',\'' + auditId + '\')" style="color:#ff9985">' + ICO.trash + '</button>' : '')
+    + '</div>'
+    + '<div class="body">'
+    + '<div class="row2">'
+    + '<div class="field"><label>Reference</label><input id="f-ref" type="text" value="' + esc(f.ref) + '" style="font-family:var(--fm);font-weight:700;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>'
+    + '<div class="field"><label>Date constat</label><input id="f-obsdate" type="date" value="' + esc(f.obsDate || '') + '"></div>'
+    + '</div>'
+    + '<div class="field"><label>Pathologie *</label><select id="f-patho" onchange="onPathoChange(this.value,' + (isNew ? 1 : 0) + ',\'' + auditId + '\')">' + pathoOpts + '</select></div>'
+    + '<div class="field"><label>Severite</label>'
+    + '<div class="sev-opts">'
+    + '<div class="sev-opt ' + (f.sev === 'surveiller' ? 'sev-surv' : '') + '" data-sev="surveiller" onclick="selectSev(\'surveiller\')">&#128993; A surveiller</div>'
+    + '<div class="sev-opt ' + (f.sev === 'critical' ? 'sev-crit' : '') + '" data-sev="critical" onclick="selectSev(\'critical\')">&#128308; Critique</div>'
+    + '</div>'
+    + '<input type="hidden" id="f-sev" value="' + esc(f.sev || 'surveiller') + '">'
+    + '</div>'
+    + '<div class="row2">'
+    + '<div class="field"><label>Zone</label><input id="f-zone" type="text" value="' + esc(f.zone || '') + '" placeholder="ex: Allee A"></div>'
+    + '<div class="field"><label>Quantite (<span id="unit-lbl">' + cp.unit + '</span>)</label>'
+    + '<div class="qty-wrap"><input id="f-qty" type="number" min="0" step="' + (cp.unit === 'u' ? '1' : '0.1') + '" value="' + esc(String(f.qty || '')) + '" placeholder="0"><span class="qty-unit" id="unit-sfx">' + cp.unit + '</span></div>'
+    + '</div></div>'
+    + '<div class="field"><label>Description / Remarque</label><textarea id="f-desc" placeholder="Decrivez l\'anomalie...">' + esc(f.desc || '') + '</textarea></div>'
+    + '<div style="margin-bottom:20px">'
+    + '<div style="font-size:11px;font-family:var(--fm);color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:10px">Photos <span id="photo-count">(' + (isNew ? tempPhotos.length : photos.length) + ')</span></div>'
+    + '<div class="photo-grid" id="photo-grid">'
+    + photosHtml
+    + '<label class="photo-add" id="photo-add-lbl">'
+    + ICO.cam + '<span>Photo</span>'
+    + '<input type="file" accept="image/*" capture="environment" style="display:none" onchange="addPhoto(event,\'' + (isNew ? '__new__' : (obs ? obs.id : '')) + '\')">'
+    + '</label></div>'
+    + '<div id="photo-loading" style="display:none;align-items:center;gap:8px;font-size:13px;color:var(--ink3);margin-top:6px"><span class="spin"></span> Compression...</div>'
+    + '</div>'
+    + '<button class="btn btn-acc btn-lg" style="width:100%;margin-bottom:12px" onclick="saveObs(\'' + auditId + '\',\'' + obsId + '\')">'
+    + (isNew ? 'Creer l\'observation' : 'Enregistrer')
+    + '</button>'
+    + '<button class="btn btn-ghost" style="width:100%" onclick="cancelObs(\'' + auditId + '\')">Annuler</button>'
+    + '</div></div>';
+}
+
+async function getAutoRef(auditId, patho) {
+  var all = await dbByIndex('observations', 'auditId', auditId);
+  var count = all.filter(function(o) { return o.patho === patho; }).length;
+  return patho + '-' + String(count + 1).padStart(3, '0');
+}
+
+function cancelObs(auditId) {
+  tempPhotos = [];
+  currentTab = 'list';
+  goTo('audit/' + auditId);
+}
+
+async function onPathoChange(code, isNew, auditId) {
+  var p = PATHO_MAP[code] || {unit: 'm2'};
+  var ul = document.getElementById('unit-lbl');
+  var us = document.getElementById('unit-sfx');
+  var qi = document.getElementById('f-qty');
+  if (ul) ul.textContent = p.unit;
+  if (us) us.textContent = p.unit;
+  if (qi) qi.step = p.unit === 'u' ? '1' : '0.1';
+  if (isNew) {
+    var ref = await getAutoRef(auditId, code);
+    var ri = document.getElementById('f-ref');
+    if (ri) ri.value = ref;
+  }
+}
+
+function selectSev(sev) {
+  document.getElementById('f-sev').value = sev;
+  var opts = document.querySelectorAll('.sev-opt');
+  for (var i = 0; i < opts.length; i++) {
+    var el = opts[i];
+    el.className = 'sev-opt';
+    if (el.getAttribute('data-sev') === sev) {
+      el.className = 'sev-opt ' + (sev === 'critical' ? 'sev-crit' : 'sev-surv');
+    }
+  }
+}
+
+async function saveObs(auditId, obsId) {
+  var isNew = obsId === 'new';
+  var ref = (document.getElementById('f-ref').value || '').trim().toUpperCase();
+  if (!ref) { toast('Reference requise', 'err'); return; }
+  var now = Date.now();
+  var newId = isNew ? uid() : obsId;
+  var existing = isNew ? null : await dbGet('observations', obsId);
+  var data = {
+    id: newId,
+    auditId: auditId,
+    ref: ref,
+    sev:     document.getElementById('f-sev').value || 'surveiller',
+    patho:   document.getElementById('f-patho').value || 'FIS',
+    desc:    (document.getElementById('f-desc').value || '').trim(),
+    qty:     parseFloat(document.getElementById('f-qty').value) || 0,
+    zone:    (document.getElementById('f-zone').value || '').trim(),
+    obsDate: document.getElementById('f-obsdate').value || null,
+    photoIds: isNew ? [] : (existing ? existing.photoIds || [] : []),
+    createdAt: isNew ? now : (existing ? existing.createdAt || now : now),
+    updatedAt: now
+  };
+
+  if (isNew && tempPhotos.length > 0) {
+    var ids = [];
+    for (var i = 0; i < tempPhotos.length; i++) {
+      var tp = tempPhotos[i];
+      var photo = {id: tp.id, obsId: newId, dataUrl: tp.dataUrl, thumbUrl: tp.thumbUrl, bytes: tp.bytes, createdAt: now};
+      await dbPut('photos', photo);
+      ids.push(tp.id);
+    }
+    data.photoIds = ids;
+    tempPhotos = [];
+  }
+
+  await dbPut('observations', data);
+  var audit = await dbGet('audits', auditId);
+  if (audit) { audit.updatedAt = now; await dbPut('audits', audit); }
+  toast(isNew ? 'Observation creee' : 'Enregistre', 'ok');
+  currentTab = 'list';
+  goTo('audit/' + auditId);
+}
+
+async function confirmDelObs(obsId, auditId) {
+  if (!confirm('Supprimer cette observation ?')) return;
+  var obs = await dbGet('observations', obsId);
+  if (obs) { var ids = obs.photoIds || []; for (var i=0;i<ids.length;i++) await dbDelete('photos', ids[i]); }
+  await dbDelete('observations', obsId);
+  toast('Supprimee', 'warn');
+  currentTab = 'list';
+  goTo('audit/' + auditId);
+}
+
+async function addPhoto(evt, obsId) {
+  var file = evt.target.files && evt.target.files[0];
+  if (!file) return;
+  var loadEl = document.getElementById('photo-loading');
+  var addLbl = document.getElementById('photo-add-lbl');
+  if (loadEl) loadEl.style.display = 'flex';
+  if (addLbl) addLbl.style.opacity = '.4';
+  try {
+    var compressed = await compressPhoto(file);
+    var thumbUrl = await makeThumb(compressed.dataUrl);
+    var photoId = uid();
+    if (obsId === '__new__') {
+      tempPhotos.push({id: photoId, dataUrl: compressed.dataUrl, thumbUrl: thumbUrl, bytes: compressed.bytes});
+      var grid = document.getElementById('photo-grid');
+      if (grid) {
+        var idx = tempPhotos.length - 1;
+        var div = document.createElement('div');
+        div.className = 'photo-thumb fadein';
+        var img = document.createElement('img');
+        img.src = thumbUrl; img.loading = 'lazy';
+        img.onclick = (function(i) { return function() { viewPhoto('', true, i); }; })(idx);
+        var btn = document.createElement('button');
+        btn.className = 'photo-del'; btn.textContent = '\u2715';
+        btn.onclick = (function(i) { return function() { delTempPhoto(i); }; })(idx);
+        div.appendChild(img); div.appendChild(btn);
+        grid.insertBefore(div, document.getElementById('photo-add-lbl'));
+        var cnt = document.getElementById('photo-count');
+        if (cnt) cnt.textContent = '(' + tempPhotos.length + ')';
+      }
+    } else {
+      var photo = {id: photoId, obsId: obsId, dataUrl: compressed.dataUrl, thumbUrl: thumbUrl, bytes: compressed.bytes, createdAt: Date.now()};
+      await dbPut('photos', photo);
+      var obs = await dbGet('observations', obsId);
+      if (obs) { obs.photoIds = (obs.photoIds || []).concat(photoId); obs.updatedAt = Date.now(); await dbPut('observations', obs); }
+      var grid = document.getElementById('photo-grid');
+      if (grid) {
+        var div = document.createElement('div'); div.className = 'photo-thumb fadein';
+        var img = document.createElement('img'); img.src = thumbUrl; img.loading = 'lazy';
+        img.onclick = (function(pid) { return function() { viewPhoto(pid, false, 0); }; })(photoId);
+        var btn = document.createElement('button'); btn.className = 'photo-del'; btn.textContent = '\u2715';
+        btn.onclick = (function(pid,oid) { return function() { deletePhoto(pid,oid); }; })(photoId, obsId);
+        div.appendChild(img); div.appendChild(btn);
+        grid.insertBefore(div, document.getElementById('photo-add-lbl'));
+        var cnt = document.getElementById('photo-count');
+        if (cnt) { var n = parseInt(cnt.textContent.replace(/\D/g,''))||0; cnt.textContent='('+(n+1)+')'; }
+      }
+    }
+    toast('Photo ajoutee', 'ok');
+  } catch(e) { toast('Erreur photo', 'err'); }
+  finally { if (loadEl) loadEl.style.display='none'; if (addLbl) addLbl.style.opacity='1'; evt.target.value=''; }
+}
+
+function delTempPhoto(idx) {
+  tempPhotos.splice(idx, 1);
+  var hash = location.hash.slice(1);
+  render();
+}
+
+async function deletePhoto(photoId, obsId) {
+  if (!confirm('Supprimer cette photo ?')) return;
+  await dbDelete('photos', photoId);
+  var obs = await dbGet('observations', obsId);
+  if (obs) { obs.photoIds = (obs.photoIds||[]).filter(function(id){return id!==photoId;}); await dbPut('observations', obs); }
+  var thumbs = document.querySelectorAll('.photo-thumb');
+  for (var i=0;i<thumbs.length;i++) {
+    if (thumbs[i].querySelector('[onclick*="'+photoId+'"]')) { thumbs[i].parentNode.removeChild(thumbs[i]); break; }
+  }
+  toast('Photo supprimee', 'warn');
+}
+
+async function viewPhoto(photoId, isTemp, tempIdx) {
+  var dataUrl;
+  if (isTemp) { dataUrl = tempPhotos[tempIdx] && tempPhotos[tempIdx].dataUrl; }
+  else { var p = await dbGet('photos', photoId); dataUrl = p && p.dataUrl; }
+  if (!dataUrl) return;
+  var overlay = document.createElement('div'); overlay.className = 'overlay';
+  var img = document.createElement('img'); img.src = dataUrl;
+  overlay.appendChild(img); overlay.onclick = function() { document.body.removeChild(overlay); };
+  document.body.appendChild(overlay);
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+function renderSettings(app) {
+  app.innerHTML = '<div class="screen">'
+    + '<div class="topbar"><button class="topbar-back" onclick="goTo(\'dashboard\')">' + ICO.back + '</button><span class="topbar-title">Informations</span></div>'
+    + '<div class="body">'
+    + '<div style="padding:20px 0 24px"><h2>DallAudit ' + VERSION + '</h2><p style="color:var(--ink3);font-size:13px;margin:4px 0 0">Bordas Industrial Group</p></div>'
+    + '<div class="card" style="margin-bottom:12px">'
+    + '<div style="font-size:11px;font-family:var(--fm);text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:12px;letter-spacing:.05em">Sauvegarde</div>'
+    + '<p style="font-size:13px;color:var(--ink2);margin-bottom:12px">Exportez vos donnees pour les sauvegarder ou les transferer.</p>'
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    + '<button class="btn btn-prim btn-sm" onclick="exportData()">Exporter JSON</button>'
+    + '<label class="btn btn-ghost btn-sm" style="cursor:pointer">Importer JSON<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>'
+    + '</div></div>'
+    + '<div class="card" style="margin-bottom:12px">'
+    + '<div style="font-size:11px;font-family:var(--fm);text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:10px;letter-spacing:.05em">Installer sur smartphone</div>'
+    + '<p style="font-size:13px;margin-bottom:4px"><strong>iPhone :</strong> Safari > Partager > Sur l\'ecran d\'accueil</p>'
+    + '<p style="font-size:13px;margin-bottom:4px"><strong>Android :</strong> Chrome > Menu > Ajouter a l\'ecran d\'accueil</p>'
+    + '</div>'
+    + '<div class="card" style="background:var(--warn2);border-color:#E8D090">'
+    + '<p style="font-size:13px;color:var(--ink2);margin:0">Les donnees sont stockees sur cet appareil uniquement. Exportez regulierement.</p>'
+    + '</div>'
+    + '</div>'
+    + '<nav class="nav">'
+    + '<button class="nav-item" onclick="goTo(\'dashboard\')">' + ICO.list + '<span>Audits</span></button>'
+    + '<button class="nav-item active">' + ICO.info + '<span>Infos</span></button>'
+    + '</nav></div>';
+}
+
+async function exportData() {
+  var data = {exportedAt: new Date().toISOString(), version: VERSION,
+    audits: await dbGetAll('audits'), observations: await dbGetAll('observations')};
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'dallaudit-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(url);
+  toast('Export telecharge', 'ok');
+}
+
+async function importData(evt) {
+  var file = evt.target.files && evt.target.files[0];
+  if (!file) return;
+  try {
+    var text = await file.text();
+    var data = JSON.parse(text);
+    if (!data.audits || !data.observations) throw new Error('Format invalide');
+    if (!confirm('Importer ' + data.audits.length + ' audits et ' + data.observations.length + ' observations ?')) return;
+    for (var i=0;i<data.audits.length;i++) await dbPut('audits', data.audits[i]);
+    for (var i=0;i<data.observations.length;i++) await dbPut('observations', data.observations[i]);
+    toast('Import reussi : ' + data.audits.length + ' audits', 'ok', 4000);
+    goTo('dashboard');
+  } catch(e) { toast('Fichier invalide', 'err'); }
+}
+
+/* ============================================================
+   PDF
+   ============================================================ */
+async function downloadPDF(auditId) {
+  var btn = document.getElementById('pdf-btn');
+  if (btn) { btn.textContent = '...'; btn.disabled = true; }
+  var audit = await dbGet('audits', auditId);
+  var obs = await dbByIndex('observations', 'auditId', auditId);
+  obs.sort(function(a,b){return a.ref<b.ref?-1:1;});
+
+  if (!window.jspdf) { toast('PDF non disponible hors-ligne', 'warn'); if(btn){btn.innerHTML=ICO.pdf+' PDF';btn.disabled=false;} return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
+  var W = 190;
+
+  var totalCrit = obs.filter(function(o){return o.sev==='critical';}).length;
+  var totalSurv = obs.filter(function(o){return o.sev==='surveiller';}).length;
+  var stats = {};
+  for (var i=0;i<obs.length;i++) {
+    var o=obs[i];
+    if (!stats[o.patho]) stats[o.patho]={count:0,total:0,unit:(PATHO_MAP[o.patho]||{unit:''}).unit};
+    stats[o.patho].count++;stats[o.patho].total+=(o.qty||0);
+  }
+  var sorted = Object.keys(stats).map(function(k){return[k,stats[k]];}).sort(function(a,b){return b[1].count-a[1].count;});
+
+  // Cover
+  doc.setFillColor(28,23,18); doc.rect(0,0,210,48,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(201,78,26);
+  doc.text("RAPPORT D'AUDIT - DALLAGE INDUSTRIEL", 12, 26);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(180,180,180);
+  doc.text(new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}), 12, 35);
+
+  var y = 62;
+  doc.setTextColor(28,23,18); doc.setFont('helvetica','bold'); doc.setFontSize(18);
+  doc.text(audit.title, 10, y, {maxWidth:W}); y += 10;
+  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(138,123,106);
+  if (audit.siteName)    { doc.text('Site : ' + audit.siteName, 10, y); y += 7; }
+  if (audit.auditDate)   { doc.text('Date : ' + audit.auditDate, 10, y); y += 6; }
+  if (audit.auditorName) { doc.text('Charge d\'affaires : ' + audit.auditorName, 10, y); y += 6; }
+  doc.setDrawColor(200,180,154); doc.setLineWidth(0.5); doc.line(10,y+2,200,y+2); y += 10;
+
+  // KPIs
+  var kpis = [['OBS. TOTALES',String(obs.length),[28,23,18]],['CRITIQUES',String(totalCrit),[201,78,26]],['A SURVEILLER',String(totalSurv),[176,128,32]]];
+  for (var i=0;i<kpis.length;i++) {
+    var x=10+i*65; var k=kpis[i];
+    doc.setFillColor(250,246,241); doc.rect(x,y,60,24,'F');
+    doc.setTextColor(k[2][0],k[2][1],k[2][2]); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+    doc.text(k[1],x+30,y+14,{align:'center'});
+    doc.setTextColor(138,123,106); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+    doc.text(k[0],x+30,y+21,{align:'center'});
+  }
+  y += 32;
+
+  // Metres table
+  if (sorted.length > 0) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(28,23,18);
+    doc.text('RECAPITULATIF DES METRES', 10, y); y += 7;
+    doc.setFillColor(42,37,33); doc.rect(10,y,W,7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,255,255);
+    doc.text('PATHOLOGIE',12,y+4.5); doc.text('NB',148,y+4.5); doc.text('TOTAL',168,y+4.5);
+    y += 9;
+    for (var i=0;i<sorted.length;i++) {
+      var code=sorted[i][0], s=sorted[i][1];
+      var lbl=(PATHO_MAP[code]||{label:code}).label;
+      if (i%2===0){doc.setFillColor(250,246,241);doc.rect(10,y,W,7,'F');}
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(28,23,18);
+      doc.text(code+' - '+lbl, 12, y+4.5, {maxWidth:130});
+      doc.setFont('helvetica','bold'); doc.text(String(s.count),148,y+4.5);
+      doc.setTextColor(201,78,26);
+      doc.text(s.total>0 ? s.total.toFixed(s.unit==='u'?0:1)+' '+s.unit : '-', 168, y+4.5);
+      y+=8;
+      if(y>270){doc.addPage();y=20;}
+    }
+    y += 6;
+  }
+
+  // Obs list
+  doc.addPage();
+  var pgH = function() {
+    doc.setFillColor(28,23,18); doc.rect(0,0,210,16,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(255,255,255);
+    doc.text('LISTE DES OBSERVATIONS',10,11);
+    doc.setTextColor(201,78,26); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+    doc.text(audit.title.slice(0,60),200,11,{align:'right'});
+    return 24;
+  };
+  y = pgH();
+  var drawTH = function(yy) {
+    doc.setFillColor(42,37,33); doc.rect(10,yy,W,7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(255,255,255);
+    var hs=['REF','PATHOLOGIE','SEV.','QTE','ZONE','DATE','DESCRIPTION'];
+    var hx=[10,30,78,96,112,130,148];
+    for(var i=0;i<hs.length;i++) doc.text(hs[i],hx[i]+1,yy+4.5);
+    return yy+9;
+  };
+  y = drawTH(y);
+
+  for (var oi=0;oi<obs.length;oi++) {
+    var o=obs[oi];
+    var pInfo=PATHO_MAP[o.patho]||{label:o.patho,unit:''};
+    var photoData=[];
+    if (o.photoIds) {
+      for (var pi=0;pi<Math.min(o.photoIds.length,3);pi++) {
+        var ph=await dbGet('photos',o.photoIds[pi]);
+        if(ph) photoData.push(ph.dataUrl);
+      }
+    }
+    var hasPhotos=photoData.length>0;
+    var descLines=Math.ceil(((o.desc||'').length)/45)||1;
+    var textH=Math.max(8,descLines*4+6);
+    var photoH=hasPhotos?70:0;
+    var rowH=textH+photoH;
+    if(y+rowH>278){doc.addPage();y=pgH();y=drawTH(y);}
+    if(oi%2===0){doc.setFillColor(250,246,241);doc.rect(10,y,W,rowH,'F');}
+    var sc=o.sev==='critical'?[201,78,26]:o.sev==='surveiller'?[176,128,32]:[45,122,79];
+    doc.setFillColor(sc[0],sc[1],sc[2]);doc.rect(10,y,3,rowH,'F');
+    var hx=[10,30,78,96,112,130,148];
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(28,23,18);doc.text(o.ref,hx[0]+4,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(74,63,53);
+    doc.text((o.patho+' '+pInfo.label),hx[1]+1,y+5,{maxWidth:46});
+    var sl=o.sev==='critical'?'CRIT.':'SURV.';
+    doc.setTextColor(sc[0],sc[1],sc[2]);doc.setFont('helvetica','bold');doc.setFontSize(6);doc.text(sl,hx[2]+1,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(138,123,106);
+    if(o.qty>0)doc.text(o.qty+pInfo.unit,hx[3]+1,y+5);
+    if(o.zone)doc.text(o.zone.slice(0,12),hx[4]+1,y+5);
+    if(o.obsDate)doc.text(o.obsDate,hx[5]+1,y+5);
+    doc.setTextColor(74,63,53);doc.setFontSize(7);
+    if(o.desc)doc.text(o.desc,hx[6]+1,y+5,{maxWidth:52});
+    if(hasPhotos){
+      var px=12;var imgY=y+textH+2;
+      for(var pi=0;pi<photoData.length;pi++){
+        try{doc.addImage(photoData[pi],'JPEG',px,imgY,60,64);}catch(e){}
+        px+=62;
+      }
+    }
+    y+=rowH+2;
+  }
+
+  var pc=doc.getNumberOfPages();
+  for(var pg=1;pg<=pc;pg++){
+    doc.setPage(pg);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(138,123,106);
+    doc.line(10,285,200,285);
+    doc.text('DallAudit '+VERSION+' - BIG Bordas Industrial Group - '+obs.length+' observations - '+new Date().toLocaleString('fr-FR'),105,289,{align:'center'});
+    doc.text(pg+'/'+pc,200,289,{align:'right'});
+  }
+
+  var fn='rapport-'+audit.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.pdf';
+  doc.save(fn);
+  toast('Rapport telecharge', 'ok');
+  if(btn){btn.innerHTML=ICO.pdf+' PDF';btn.disabled=false;}
+}
+
+/* ---- Init ---- */
+async function init() {
+  try {
+    await openDB();
+  } catch(e) {
+    document.getElementById('app').innerHTML = '<div style="padding:40px;text-align:center;color:var(--acc)"><p>Erreur base de donnees.</p><p style="font-size:12px">'+e.message+'</p></div>';
+    return;
+  }
+  render();
+}
+init();
+</script>
+</body>
+</html>
